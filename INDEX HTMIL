@@ -1,0 +1,350 @@
+ISC License
+
+Copyright (c) 2025 Pinak
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+Additional request from author:
+- The author requests that if this project is used publicly, appropriate
+  credit is given. If the project or its assets are used without credit,
+  the author reserves the right to pursue copyright action.Christmas Free
+A small festive single-page site with snowfall effect and simple navigation.
+
+What's added/changed:
+
+Slightly improved styling (gentle gradient, button polish).
+Background music support via script.js and a small Music toggle button on the homepage.
+Background music usage
+
+Place an MP3 file at assets/bgm.mp3 (create an assets folder at the project root).
+The music toggle button (Music OFF / Music ON) will remember your preference using localStorage.
+Note: Browsers typically block autoplay; music will start after a user gesture if enabled.
+Credits & License
+
+This project is licensed under the ISC License (see LICENSE).
+Please credit the project author when reusing or remixing this site. If this project or its assets are used publicly without credit, the author reserves the right to pursue copyright remedies.
+If you want, I can add a bundled sample MP3 (CC0) or wire up an external free track — tell me which option you prefer.<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Christmas Gallery 🎄</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Christmas Gallery 🎄</h1>
+
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1543589077-47d81606c1bf" />
+      <img src="https://images.unsplash.com/photo-1512389098783-66b81f86e199" />
+      <img src="https://images.unsplash.com/photo-1608889175112-b33f9f3c1c4a" />
+      <img src="https://images.unsplash.com/photo-1545580492-8859ba8323cb" />
+    </div>
+
+    <br /><br />
+    <a href="index.html" class="button">Back to Message 🎄</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Merry Christmas 🎄</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Merry Christmas 🎄</h1>
+    <h2>Dear Bhumi 💝</h2>
+
+      May your Christmas be filled with warmth, soft lights, cozy moments,
+      and beautiful memories that stay forever.
+    </p>
+    <a href="notes.html" class="button">Open Notes 💌</a>
+    <button id="music-toggle" class="button music-toggle" aria-pressed="false">🔈 Music OFF</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Christmas Notes 💖</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Little Christmas Notes 💖</h1>
+
+    <div class="notes">
+      <div class="note">You make winter feel warmer ☕❄️</div>
+      <div class="note">Your smile beats Christmas lights ✨</div>
+      <div class="note">Best gift this season? You 🎁</div>
+      <div class="note">May joy follow you like snowflakes ❄️</div>
+    </div>
+
+    <br /><br />
+    <a href="gallery.html" class="button">View Gallery 🎅</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>const canvas = document.createElement("canvas");
+canvas.className = "snow";
+document.body.appendChild(canvas);
+
+const ctx = canvas.getContext("2d");
+let w, h;
+let flakes = [];
+
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+function createFlakes() {
+  flakes = Array.from({ length: 120 }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    r: Math.random() * 3 + 1,
+    speed: Math.random() * 1 + 0.5
+  }));
+}
+createFlakes();
+
+function draw() {
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  flakes.forEach(f => {
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+    ctx.fill();
+    f.y += f.speed;
+    f.x += Math.sin(f.y * 0.01);
+    if (f.y > h) {
+      f.y = -5;
+      f.x = Math.random() * w;
+    }
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+// Background music controls
+const bgm = new Audio();
+bgm.src = 'assets/bgm.mp3';
+bgm.loop = true;
+bgm.volume = 0.28;
+bgm.preload = 'auto';
+let musicPlaying = false;
+
+function updateMusicButton() {
+  const btn = document.getElementById('music-toggle');
+  if (!btn) return;
+  btn.textContent = musicPlaying ? '🔊 Music ON' : '🔈 Music OFF';
+  btn.setAttribute('aria-pressed', musicPlaying ? 'true' : 'false');
+}
+
+function playMusic() {
+  bgm.play().then(() => {
+    musicPlaying = true;
+    updateMusicButton();
+    localStorage.setItem('bgmPlaying', '1');
+  }).catch(() => {
+    // Autoplay blocked; wait for user interaction
+    musicPlaying = false;
+    updateMusicButton();
+  });
+}
+
+function pauseMusic() {
+  bgm.pause();
+  musicPlaying = false;
+  updateMusicButton();
+  localStorage.setItem('bgmPlaying', '0');
+}
+
+function toggleMusic() {
+  if (musicPlaying) pauseMusic(); else playMusic();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('music-toggle');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    toggleMusic();
+  });
+
+  // Restore preference if user previously enabled music
+  const saved = localStorage.getItem('bgmPlaying');
+  if (saved === '1') {
+    // Many browsers block autoplay; try to play on first user gesture
+    const tryPlay = () => {
+      playMusic();
+      window.removeEventListener('click', tryPlay);
+    };
+    window.addEventListener('click', tryPlay);
+  } else {
+    updateMusicButton();
+  }
+});@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Pacifico&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #fff5f5, #e8f5e9);
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: #333;
+  animation: fadeIn 1s ease;
+}
+
+/* Page animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+/* Headings */
+h1 {
+  font-family: 'Pacifico', cursive;
+  font-size: clamp(2rem, 6vw, 3rem);
+  color: #c62828;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+p {
+  font-size: clamp(1rem, 3.5vw, 1.15rem);
+  line-height: 1.8;
+  margin-bottom: 35px;
+  max-width: 700px;
+  margin-inline: auto;
+}
+
+/* Buttons */
+.button {
+  display: inline-block;
+  padding: 14px 34px;
+  background: #c62828;
+  color: white;
+  text-decoration: none;
+  border-radius: 40px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.button:hover {
+  background: #a61b1b;
+  transform: scale(1.08);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Music toggle button (shares .button styles) */
+.music-toggle {
+  margin-left: 12px;
+  padding-left: 18px;
+  padding-right: 18px;
+  background: linear-gradient(90deg, #ff8a65, #c62828);
+}
+.music-toggle:hover {
+  transform: scale(1.06) rotate(-0.5deg);
+}
+
+/* Notes */
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  margin-top: 40px;
+}
+
+.note {
+  background: white;
+  padding: 28px;
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+  font-size: 1rem;
+  transition: 0.4s;
+  animation: pop 0.6s ease forwards;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.note:hover {
+  transform: translateY(-8px) rotate(-1deg);
+}
+
+/* Gallery */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 18px;
+  margin-top: 40px;
+}
+
+.gallery img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 22px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  transition: 0.4s ease;
+}
+
+.gallery img:hover {
+  transform: scale(1.08);
+}
+
+/* Snow */
+.snow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+  .container {
+    padding: 60px 16px;
+  }
+}
